@@ -3,10 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>OSTEAM YBS CodeLab</title>
 </head>
 <body>
-    <h1>OSTEAM YBS CodeLab - CampusEvent</h1>
-    <p>Projemiz başarıyla başlatıldı!</p>
+    <header>
+        <a href="/">OSTEAM YBS CodeLab</a>
+        <nav>
+            <a href="#">Events</a>
+            <a href="#">About</a>
+            <a href="#">Join</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Upcoming Events</h1>
+        
+        <!-- Kartların yer alacağı Grid alanı -->
+        <section class="cards">
+            <article>
+                <h2>Python Workshop</h2>
+                <p>Oct 22 - Lab 3</p>
+            </article>
+            <article>
+                <h2>Web Dev Bootcamp</h2>
+                <p>Oct 25 - Conference Hall</p>
+            </article>
+            <article>
+                <h2>AI & Future Trends</h2>
+                <p>Nov 02 - Online</p>
+            </article>
+        </section>
+
+        <!-- Kayıt Formu (2. Hafta Şartı) -->
+        <section class="form-section" style="margin-top: 40px;">
+            <h2>Join Our Club</h2>
+            <form>
+                <label for="name">Name</label><br>
+                <input id="name" required style="margin-bottom: 10px; padding: 8px;"><br>
+
+                <label for="email">Email</label><br>
+                <input id="email" type="email" required style="margin-bottom: 10px; padding: 8px;"><br>
+
+                <button type="submit" style="padding: 10px 20px;">Join</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p style="text-align: center; padding: 20px;">OSTEAM YBS CodeLab © 2026</p>
+    </footer>
 </body>
 </html>

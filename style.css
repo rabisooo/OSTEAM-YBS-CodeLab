@@ -51,6 +51,26 @@ article {
     background: var(--light);
 }
 
+.done {
+    text-decoration: line-through;
+    color: #888888;
+}
+
+li {
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+button.delete {
+    margin-left: 10px;
+    background-color: #d9692b;
+    color: white;
+    border: none;
+    padding: 2px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 @media (min-width: 768px) {
     .cards {
         grid-template-columns: repeat(3, 1fr);

@@ -35,17 +35,21 @@
             </article>
         </section>
 
-        <!-- Kayıt Formu (2. Hafta Şartı) -->
+        <!-- JavaScript ile dinamik dolacak liste -->
+        <section style="margin-top: 40px;">
+            <h2>Task List</h2>
+            <ul id="task-list"></ul>
+        </section>
+
+        <!-- Kayıt ve Etkinlik Ekleme Formu -->
         <section class="form-section" style="margin-top: 40px;">
-            <h2>Join Our Club</h2>
-            <form>
-                <label for="name">Name</label><br>
-                <input id="name" required style="margin-bottom: 10px; padding: 8px;"><br>
+            <h2>Add New Event / Task</h2>
+            <form id="task-form">
+                <label for="task-input">Event Title</label><br>
+                <input id="task-input" required style="margin-bottom: 10px; padding: 8px;"><br>
+                <p id="error" style="color: red;"></p>
 
-                <label for="email">Email</label><br>
-                <input id="email" type="email" required style="margin-bottom: 10px; padding: 8px;"><br>
-
-                <button type="submit" style="padding: 10px 20px;">Join</button>
+                <button type="submit" style="padding: 10px 20px;">Add Task</button>
             </form>
         </section>
     </main>
@@ -53,6 +57,7 @@
     <footer>
         <p style="text-align: center; padding: 20px;">OSTEAM YBS CodeLab © 2026</p>
     </footer>
+
     <script src="app.js"></script>
 </body>
 </html>

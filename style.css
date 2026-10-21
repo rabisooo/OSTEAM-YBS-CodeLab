@@ -11,7 +11,7 @@
 body {
     margin: 0;
     font-family: system-ui, sans-serif;
-    background-color: #ffffff;
+    background-color: #f8f9fa;
     color: #333333;
 }
 
@@ -19,14 +19,16 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
+    padding: 16px 32px;
     background: var(--dark);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 header a {
     color: white;
     text-decoration: none;
     font-weight: bold;
+    font-size: 1.1rem;
 }
 
 nav {
@@ -34,8 +36,26 @@ nav {
     gap: 24px;
 }
 
+nav a {
+    font-size: 0.95rem;
+    color: white;
+    text-decoration: none;
+    opacity: 0.9;
+}
+
+nav a:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
 main {
-    padding: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 16px;
+}
+
+h1, h2 {
+    color: var(--dark);
 }
 
 .cards {
@@ -48,27 +68,87 @@ main {
 article {
     padding: 24px;
     border-radius: 12px;
-    background: var(--light);
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 4px solid var(--accent);
+}
+
+/* Görev Listesi Tasarımı */
+#task-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+#task-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#task-list li:hover {
+    background: #f1f3f5;
 }
 
 .done {
     text-decoration: line-through;
-    color: #888888;
+    color: #adb5bd;
 }
 
-li {
-    margin-bottom: 8px;
-    cursor: pointer;
-}
-
+/* Silme Butonu Stili */
 button.delete {
-    margin-left: 10px;
-    background-color: #d9692b;
+    background-color: #e63946;
     color: white;
     border: none;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+button.delete:hover {
+    background-color: #c92a2a;
+}
+
+/* Form Tasarımı */
+.form-section {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+form input {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 1rem;
+    margin-top: 6px;
+}
+
+form button[type="submit"] {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 12px;
+}
+
+form button[type="submit"]:hover {
+    opacity: 0.9;
 }
 
 @media (min-width: 768px) {

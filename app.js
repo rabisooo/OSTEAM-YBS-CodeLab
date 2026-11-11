@@ -1,9 +1,12 @@
-// Görevler artık data.json dosyasından yüklenecek.
+// Görevler artık Express API'den (week5-api) yüklenecek.
+const API_URL = "http://localhost:3000/api/events";
+
 let tasks = [];
 
 const list = document.querySelector("#task-list");
 const form = document.querySelector("#task-form");
 const input = document.querySelector("#task-input");
+const dateInput = document.querySelector("#date-input");
 const error = document.querySelector("#error");
 const statusText = document.querySelector("#task-status");
 
@@ -36,7 +39,7 @@ function render() {
 
         // Görev metni
         const span = document.createElement("span");
-        span.textContent = task.title;
+        span.textContent = `${task.title} - ${task.date}`;
 
         if (task.done) {
             span.classList.add("done");
@@ -54,12 +57,12 @@ function render() {
     }
 }
 
-// JSON dosyasından görevleri yükleme
+// API'den görevleri yükleme (GET)
 async function loadTasks() {
     statusText.textContent = "Görevler yükleniyor...";
 
     try {
-        const response = await fetch("./data.json");
+        const response = await fetch(API_URL);
 
         if (!response.ok) {
             throw new Error("HTTP " + response.status);
@@ -68,7 +71,7 @@ async function loadTasks() {
         tasks = await response.json();
 
         if (!Array.isArray(tasks)) {
-            throw new Error("JSON dosyasındaki veri bir liste olmalıdır.");
+            throw new Error("API'den gelen veri bir liste olmalıdır.");
         }
 
         render();
@@ -81,60 +84,96 @@ async function loadTasks() {
 
     } catch (err) {
         statusText.textContent =
-            "Veriler yüklenemedi: " + err.message;
+            "Veriler yüklenemedi (server çalışıyor mu?): " + err.message;
 
         render();
     }
 }
 
-// Yeni görev ekleme
-form.addEventListener("submit", (event) => {
+// Yeni görev ekleme (POST)
+form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const title = input.value.trim();
+    const date = dateInput.value;
 
-    if (title === "") {
+    if (title === "" || date === "") {
         error.textContent =
-            "Lütfen geçerli bir etkinlik veya görev yazın.";
+            "Lütfen geçerli bir etkinlik veya görev ve tarih yazın.";
         return;
     }
 
     error.textContent = "";
 
-    tasks.push({
-        id: Date.now(),
-        title: title,
-        done: false
-    });
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: title, date: date })
+        });
 
-    input.value = "";
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
 
-    render();
-    statusText.textContent = "";
+        tasks.push(await response.json());
+
+        input.value = "";
+        dateInput.value = "";
+
+        render();
+        statusText.textContent = "";
+
+    } catch (err) {
+        error.textContent = "Görev eklenemedi: " + err.message;
+    }
 });
 
-// Görev silme ve tamamlandı durumunu değiştirme
-list.addEventListener("click", (event) => {
+// Görev silme (DELETE) ve tamamlandı durumunu değiştirme (PUT)
+list.addEventListener("click", async (event) => {
     const li = event.target.closest("li");
 
     if (!li) return;
 
     const id = Number(li.dataset.id);
 
-    if (event.target.matches(".delete")) {
-        // Görevi sil
-        tasks = tasks.filter(t => t.id !== id);
+    try {
+        if (event.target.matches(".delete")) {
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: "DELETE"
+            });
 
-    } else {
-        // Görevin tamamlanma durumunu değiştir
-        const task = tasks.find(t => t.id === id);
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
 
-        if (task) {
-            task.done = !task.done;
+            // Görevi sil
+            tasks = tasks.filter(t => t.id !== id);
+
+        } else {
+            // Görevin tamamlanma durumunu değiştir
+            const task = tasks.find(t => t.id === id);
+
+            if (task) {
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ done: !task.done })
+                });
+
+                if (!response.ok) {
+                    throw new Error("HTTP " + response.status);
+                }
+
+                task.done = !task.done;
+            }
         }
-    }
 
-    render();
+        render();
+
+    } catch (err) {
+        statusText.textContent = "İşlem yapılamadı: " + err.message;
+    }
 });
 
 // Sayfa açıldığında görevleri yükle

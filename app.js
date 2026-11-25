@@ -1,6 +1,5 @@
-// Görevler artık Express API'den (week5-api) yüklenecek.
-const API_URL = "http://localhost:3000/api/events";
-
+// Görevler artık Express REST API üzerinden yüklenecek ve kaydedilecek.
+const API_URL = "http://localhost:3000/api/tasks";
 let tasks = [];
 
 const list = document.querySelector("#task-list");
@@ -23,6 +22,16 @@ if (!counterEl) {
     taskSection.insertBefore(counterEl, list);
 }
 
+// Sunucudan gelen görev nesnesini normalize et
+function normalizeTask(task) {
+    const isDone = Boolean(task.done ?? task.completed);
+    return {
+        ...task,
+        done: isDone,
+        completed: isDone
+    };
+}
+
 // Görevleri ekrana yazdırma
 function render() {
     list.innerHTML = "";
@@ -37,9 +46,9 @@ function render() {
         const li = document.createElement("li");
         li.dataset.id = task.id;
 
-        // Görev metni
+        // Görev metni (tarih varsa ekle)
         const span = document.createElement("span");
-        span.textContent = `${task.title} - ${task.date}`;
+        span.textContent = task.date ? `${task.title} - ${task.date}` : task.title;
 
         if (task.done) {
             span.classList.add("done");
@@ -57,9 +66,10 @@ function render() {
     }
 }
 
-// API'den görevleri yükleme (GET)
+// API üzerinden görevleri yükleme (GET)
 async function loadTasks() {
     statusText.textContent = "Görevler yükleniyor...";
+    error.textContent = "";
 
     try {
         const response = await fetch(API_URL);
@@ -68,12 +78,13 @@ async function loadTasks() {
             throw new Error("HTTP " + response.status);
         }
 
-        tasks = await response.json();
+        const data = await response.json();
 
-        if (!Array.isArray(tasks)) {
-            throw new Error("API'den gelen veri bir liste olmalıdır.");
+        if (!Array.isArray(data)) {
+            throw new Error("API yanıtı bir liste olmalıdır.");
         }
 
+        tasks = data.map(normalizeTask);
         render();
 
         if (tasks.length === 0) {
@@ -95,37 +106,45 @@ form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const title = input.value.trim();
-    const date = dateInput.value;
+    const date = dateInput ? dateInput.value : "";
 
-    if (title === "" || date === "") {
+    if (title === "") {
         error.textContent =
-            "Lütfen geçerli bir etkinlik veya görev ve tarih yazın.";
+            "Lütfen geçerli bir etkinlik veya görev yazın.";
         return;
     }
 
     error.textContent = "";
+    statusText.textContent = "Görev ekleniyor...";
+
+    const payload = date ? { title, date } : { title };
 
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title: title, date: date })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
             throw new Error("HTTP " + response.status);
         }
 
-        tasks.push(await response.json());
+        const created = normalizeTask(await response.json());
+        tasks.push(created);
 
         input.value = "";
-        dateInput.value = "";
+        if (dateInput) {
+            dateInput.value = "";
+        }
 
         render();
-        statusText.textContent = "";
-
+        statusText.textContent = "Görev eklendi.";
     } catch (err) {
         error.textContent = "Görev eklenemedi: " + err.message;
+        statusText.textContent = "";
     }
 });
 
@@ -136,6 +155,7 @@ list.addEventListener("click", async (event) => {
     if (!li) return;
 
     const id = Number(li.dataset.id);
+    error.textContent = "";
 
     try {
         if (event.target.matches(".delete")) {
@@ -147,32 +167,37 @@ list.addEventListener("click", async (event) => {
                 throw new Error("HTTP " + response.status);
             }
 
-            // Görevi sil
             tasks = tasks.filter(t => t.id !== id);
-
+            render();
+            statusText.textContent = "Görev silindi.";
         } else {
-            // Görevin tamamlanma durumunu değiştir
             const task = tasks.find(t => t.id === id);
+            if (!task) return;
 
-            if (task) {
-                const response = await fetch(`${API_URL}/${id}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ done: !task.done })
-                });
+            const nextDone = !task.done;
 
-                if (!response.ok) {
-                    throw new Error("HTTP " + response.status);
-                }
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    done: nextDone,
+                    completed: nextDone
+                })
+            });
 
-                task.done = !task.done;
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
             }
+
+            const updated = normalizeTask(await response.json());
+            tasks = tasks.map(t => (t.id === id ? updated : t));
+            render();
+            statusText.textContent = "Görev durumu güncellendi.";
         }
-
-        render();
-
     } catch (err) {
-        statusText.textContent = "İşlem yapılamadı: " + err.message;
+        error.textContent = "İşlem başarısız: " + err.message;
     }
 });
 
